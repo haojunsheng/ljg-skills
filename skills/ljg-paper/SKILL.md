@@ -41,17 +41,19 @@ version: "4.9.0"
 - 文件名：`{时间戳}--paper-{简短标题}__paper.md`
 - 输出目录：`~/doc/notes/`
 
-### Org 文件头
+### Markdown 文件头
 
-```
-#+title:      {一句精练语句提炼论文核心思想或发现}
-#+subtitle:   {论文原始标题，通常英文}
-#+date:       [{YYYY-MM-DD Day HH:MM}]
-#+filetags:   :paper:
-#+identifier: {YYYYMMDDTHHMMSS}
-#+source:     {URL 或来源描述}
-#+authors:    {作者列表}
-#+venue:      {发表场所/年份}
+```markdown
+---
+title: {一句精练语句提炼论文核心思想或发现}
+subtitle: {论文原始标题，通常英文}
+date: {YYYY-MM-DD HH:MM}
+tags: [paper]
+identifier: {YYYYMMDDTHHMMSS}
+source: {URL 或来源描述}
+authors: {作者列表}
+venue: {发表场所/年份}
+---
 ```
 
 #### title 这一句怎么写
@@ -114,9 +116,11 @@ title 是这篇笔记的*灵魂句*——读者扫一眼就知道这篇论文带
 如果答得出方向 → title 通过。
 如果完全猜不到（典型是高度凝练的古文式 title），**必须用中文 subtitle 兜底**，让它承担解释功能。英文 subtitle 只是论文原标题，不算兜底：
 
-```
-#+title:      字未出，止已现
-#+subtitle:   把"还要写多远"做成一个 value 函数 — Length Value Model: ...
+```markdown
+---
+title: 字未出，止已现
+subtitle: 把"还要写多远"做成一个 value 函数 — Length Value Model: ...
+---
 ```
 
 凝练和可识别性必须共存。只凝练 = 6 个月后自己也认不出是哪篇；只可识别 = 退化回 28 字啰嗦句。两个测试都过才发布。
@@ -286,7 +290,7 @@ title 是这篇笔记的*灵魂句*——读者扫一眼就知道这篇论文带
 
 列修改清单确认后生成文件。
 
-### 9. 生成 Org 文件
+### 9. 生成 Markdown 文件
 
 按 Denote 规范获取时间戳，读 `references/template.md`，写入 `~/doc/notes/`。
 
