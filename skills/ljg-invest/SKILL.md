@@ -110,7 +110,7 @@ description: 投资分析, 生成一份深度投资分析报告。不做传统�
 ## 输出
 
 - 格式：markdown
-- 目录：`~/Documents/notes/`
+- 目录：`~/doc/notes/`
 - 命名：denote schema — `YYYYMMDDTHHMMSS==z--投资分析-PROJECT_NAME.md`
   - 例：`20260326153000==z--投资分析-example-ai.md`
 - 用 Write 工具写入，写完告知完整路径
