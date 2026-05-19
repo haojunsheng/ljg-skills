@@ -807,7 +807,7 @@ note 模具是双栏 grid。左侧 sidekick 不能空——空栏会让"紧凑�
 新风格不再使用橙色弯曲箭头。叙事流通过 page rules + 编号传达，**单阶段渲染**：
 
 ```bash
-node assets/capture.js /tmp/ljg_cast_sketchnote_{name}.html ~/Downloads/{name}.png 1080 1500 fullpage
+node assets/capture.js /tmp/ljg_cast_sketchnote_{name}.html ~/doc/img/{name}.png 1080 1500 fullpage
 ```
 
 `fullpage` 让 Playwright 自动适应内容总高度。

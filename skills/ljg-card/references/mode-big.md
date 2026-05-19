@@ -143,7 +143,7 @@ Read `assets/big_template.html`
 ```bash
 node assets/capture.js \
   /tmp/ljg_cast_big_{name}.html \
-  ~/Downloads/{name}.png \
+  ~/doc/img/{name}.png \
   1080 1440
 ```
 

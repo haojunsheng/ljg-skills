@@ -372,12 +372,12 @@ Read `assets/comic_template.html`
 
 单张：
 ```bash
-node assets/capture.js /tmp/ljg_cast_comic_{name}.html ~/Downloads/{name}.png 1080 800 fullpage
+node assets/capture.js /tmp/ljg_cast_comic_{name}.html ~/doc/img/{name}.png 1080 800 fullpage
 ```
 
 多张：逐张截图，文件名带序号
 ```bash
-node assets/capture.js /tmp/ljg_cast_comic_{name}_01.html ~/Downloads/{name}_01.png 1080 800 fullpage
-node assets/capture.js /tmp/ljg_cast_comic_{name}_02.html ~/Downloads/{name}_02.png 1080 800 fullpage
+node assets/capture.js /tmp/ljg_cast_comic_{name}_01.html ~/doc/img/{name}_01.png 1080 800 fullpage
+node assets/capture.js /tmp/ljg_cast_comic_{name}_02.html ~/doc/img/{name}_02.png 1080 800 fullpage
 # ... 逐张执行
 ```

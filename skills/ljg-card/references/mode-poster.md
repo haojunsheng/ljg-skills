@@ -106,7 +106,7 @@ Read `assets/poster_template.html`
 ## 步骤 7：截图
 
 ```bash
-node assets/capture.js /tmp/ljg_cast_poster_{name}_{N}.html ~/Downloads/{name}_{N}.png 1080 1440
+node assets/capture.js /tmp/ljg_cast_poster_{name}_{N}.html ~/doc/img/{name}_{N}.png 1080 1440
 ```
 
 多张卡片可并行截图。

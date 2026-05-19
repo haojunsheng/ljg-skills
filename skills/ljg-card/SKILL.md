@@ -1,6 +1,6 @@
 ---
 name: ljg-card
-description: "Content caster (铸). Transforms content into PNG visuals. Seven molds: -l (default) long reading card, -i infograph, -m multi-card reading cards (1080x1440), -v editorial sketchnote (problem→failure→pivot→insight→naming, magazine + archive layout), -c comic (manga-style B&W), -w whiteboard (marker-style board layout), -b big-fonts attachment card (1080x1440, weathered 碑刻 style for 小红书). Output to ~/Downloads/. Use when user says '铸', 'cast', '做成图', '做成卡片', '做成信息图', '做成海报', '视觉笔记', 'sketchnote', '杂志', 'editorial', '漫画', 'comic', 'manga', '白板', 'whiteboard', '大字', '附件图', 'big fonts', '小红书卡片'. Replaces ljg-cards and ljg-infograph."
+description: "Content caster (铸). Transforms content into PNG visuals. Seven molds: -l (default) long reading card, -i infograph, -m multi-card reading cards (1080x1440), -v editorial sketchnote (problem→failure→pivot→insight→naming, magazine + archive layout), -c comic (manga-style B&W), -w whiteboard (marker-style board layout), -b big-fonts attachment card (1080x1440, weathered 碑刻 style for 小红书). Output to ~/doc/img/. Use when user says '铸', 'cast', '做成图', '做成卡片', '做成信息图', '做成海报', '视觉笔记', 'sketchnote', '杂志', 'editorial', '漫画', 'comic', 'manga', '白板', 'whiteboard', '大字', '附件图', 'big fonts', '小红书卡片'. Replaces ljg-cards and ljg-infograph."
 user_invocable: true
 version: "2.3.0"
 ---
@@ -37,6 +37,10 @@ version: "2.3.0"
 
 从内容提取标题或核心思想作为 `{name}`（中文直接用，去标点，≤ 20 字符）。
 
+输出目录：`~/doc/img/`（若不存在则 `mkdir -p ~/doc/img`）。
+
+若 `~/doc/img/{name}.png` 已存在，则在文件名末尾追加时间戳：`{name}_{YYYYMMDDTHHmmss}.png`。
+
 ### 截图工具
 
 ```bash
@@ -51,7 +55,6 @@ npm install playwright && npx playwright install chromium
 
 ### Footer
 
-- 左侧：logo + 李继刚（已硬编码在模板中）
 - 右侧：内容来源（可选）——有明确来源时显示（如作者名、arxiv ID、网站名等），无来源时留空。使用 `{{SOURCE_LINE}}` 变量：有来源时填 `<span class="info-source">来源文字</span>`，否则空字符串。适用于 `-l`、`-i`、`-v`、`-c`、`-w` 模具（`-m` 多卡无 footer，不适用）。
 
 ### 交付

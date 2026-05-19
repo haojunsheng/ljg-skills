@@ -100,5 +100,5 @@ Read `assets/long_template.html`
 ## 步骤 5：截图
 
 ```bash
-node assets/capture.js /tmp/ljg_cast_long_{name}.html ~/Downloads/{name}.png 1080 800 fullpage
+node assets/capture.js /tmp/ljg_cast_long_{name}.html ~/doc/img/{name}.png 1080 800 fullpage
 ```
