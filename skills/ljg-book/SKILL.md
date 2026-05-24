@@ -177,7 +177,7 @@ user_invocable: true
 ## 输出
 
 1. 获取时间戳：`date +%Y%m%dT%H%M%S` 和 `date "+%Y-%m-%d %a %H:%M"`
-2. 写入 `~/Documents/notes/{时间戳}--拆书-{书名}__book.md`
+2. 写入 `~/doc/notes/{时间戳}--拆书-{书名}__book.md`
 3. Markdown 格式（标题用 `#`，加粗用 `**bold**`）
 4. 文件头：
 
