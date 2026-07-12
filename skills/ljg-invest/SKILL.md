@@ -100,7 +100,7 @@ description: 投资分析。给一个项目（公司名、BP、创始人对话�
 ## 输出
 
 - 格式：markdown
-- 目录：`~/docs/notes/`
+- 目录：`~/doc/notes/`
 - 命名按 denote：`YYYYMMDDTHHMMSS==z--投资分析-PROJECT_NAME.md`，如 `20260326153000==z--投资分析-example-ai.md`
 - 用 Write 工具写入，写完把完整路径报给用户
 

@@ -91,7 +91,7 @@ The most complex skill with multiple rendering modes:
 **Markdown output** (ljg-paper, ljg-plain, ljg-writes):
 - Bold: `**text**` (double asterisk)
 - Filenames: `{timestamp}--{title}__{type}.md`
-- Output directory: `~/docs/notes/`
+- Output directory: `~/doc/notes/`
 - Timestamps: `date +%Y%m%dT%H%M%S`
 
 **ASCII Art**:

@@ -21,7 +21,7 @@ description: "Paper reader for non-academics that reconstructs one paper as x ->
 | 只有论文标题 | 找到可靠原文后读 `ReadingGuide.md` | 保存 markdown 笔记 |
 | 用户明确只要口头解释 | `ReadingGuide.md` | 不写文件，按同一路径讲 |
 
-写 markdown 文件时再读 `references/template.md`。默认保存到 `~/docs/notes/`。
+写 markdown 文件时再读 `references/template.md`。默认保存到 `~/doc/notes/`。
 
 文件名沿用 Denote：`{YYYYMMDDTHHMMSS}--paper-{方法名或论文关键词}__paper.md`；时间戳用 `date +%Y%m%dT%H%M%S` 生成。
 
