@@ -1,18 +1,18 @@
 ---
 name: ljg-push
-description: 把 ~/.claude/skills/ljg-* 里所有更新过的 skills 同步到 github repo (ljg-skills)，先推 master 分支（markdown 输出风格），再切 md 分支（markdown 输出风格）做基础 markdown 化后推。Use when user says '/ljg-push', 'push skills', '推送 skills', '同步 skills', 'sync ljg', or whenever ljg-* skills get updated and need shipping. NOT FOR pushing non-ljg skills or arbitrary git repos.
+description: 把 ~/.agents/skills/ljg-* 里所有更新过的 skills 同步到 github repo (ljg-skills)，先推 master 分支（markdown 输出风格），再切 md 分支（markdown 输出风格）做基础 markdown 化后推。Use when user says '/ljg-push', 'push skills', '推送 skills', '同步 skills', 'sync ljg', or whenever ljg-* skills get updated and need shipping. NOT FOR pushing non-ljg skills or arbitrary git repos.
 user_invocable: true
 ---
 
 # ljg-push: 推送 ljg-* skills
 
-把本地 `~/.claude/skills/ljg-*` 里改过的 skills，一键同步到 github repo，覆盖 master 和 md 两个分支。
+把本地 `~/.agents/skills/ljg-*` 里改过的 skills，一键同步到 github repo，覆盖 master 和 md 两个分支。
 
 ## 仓库路径（硬编码）
 
 ```
 SKILLS_REPO="$HOME/code/ljg-skills"     # 本地工作 repo
-SKILLS_LOCAL="$HOME/.claude/skills"      # 本地 skill 源
+SKILLS_LOCAL="$HOME/.agents/skills"      # 本地 skill 源
 REPO_URL="git@github.com:lijigang/ljg-skills.git"
 ```
 
@@ -25,7 +25,9 @@ REPO_URL="git@github.com:lijigang/ljg-skills.git"
 | `master`（默认） | markdown | `.org` | `*bold*` | `#+title:` 等 |
 | `md` | markdown | `.md` | `**bold**` | YAML frontmatter |
 
-`~/.claude/skills/` 里的 skill 是 *master 风格*（源版本）。md 分支的差异由脚本自动转换 + 必要时手工补。
+`~/.agents/skills/` 里的 skill 是 *master 风格*（源版本）。md 分支的差异由脚本自动转换 + 必要时手工补。
+
+脚本推完 `md` 后会自动切回 `master`。本地 `$HOME/code/ljg-skills` 应该始终停在源分支，方便下次查看和安装。
 
 ## 工作流
 
@@ -35,7 +37,7 @@ REPO_URL="git@github.com:lijigang/ljg-skills.git"
 
 每次 push 前，脚本强制做一件事：*把 README 跟 local skills 对一遍*。
 
-- 列出 `~/.claude/skills/ljg-*` 全部 skill 名
+- 列出 `~/.agents/skills/ljg-*` 全部 skill 名
 - grep `$SKILLS_REPO/README.md` 里出现的 `ljg-xxx`
 - 找出 local 有但 README 没有的——*几乎肯定意味着 README 漏更新*
 - 命中 → push 中止，报告差异
@@ -54,19 +56,17 @@ REPO_URL="git@github.com:lijigang/ljg-skills.git"
 
 ## 自动转换的范围
 
-md 分支同步时自动替换的字符串：
+md 分支同步时自动转换（2026-06-12 起含 org 文件本体）：
 
+- *org 文件本体*：skill 内每个 `.org` 文件（assets/ 除外）转成同名 `.md` 并删除原件——org 头块→YAML frontmatter（含 `---` 围栏，`filetags`→`tags`）、`*` 标题→`#` 标题（层级保留）、`#+ATTR_*` 行删除、`[[file:x]]`→`![](x)`、`#+begin_src`→``` 围栏。其他 .md 文件里对被改名文件的引用同步全局改写
 - 文件扩展引用：`__qa.md` → `__qa.md`、`__paper.md` → `__paper.md` 等（denote 命名约定）
-- 模板引用：`template.md` → `template.md`
 - 关键词：`markdown` → `markdown`、`Markdown` → `Markdown`
+- org 式格式指令：`加粗用 *bold*（单星号）…` → `加粗用 **bold**（双星号）`、`标题层级从 * 开始` → `从 # 开始`、`Markdown 文件头` → `Markdown 文件头`、行首 `#+title:` 等 8 个示例键 → YAML 键行
 
-*不会自动转换* 的内容（脚本不动，需要手工维护）：
+*仍不自动转换*（按需手工）：
 
-- `*bold*` → `**bold**`：在 markdown 文件里 `*bold*` 是斜体，自动替换会破坏文档自身格式
-- org 头 `#+title:` `#+date:` → YAML frontmatter：太复杂，留人工
-- 文件本体重命名：如 `references/template.md` 文件 → `references/template.md`
-
-碰到这些差异，脚本推完 md 分支后会列出 *仍有差异* 的文件清单，给一个 review checklist。
+- 正文里的 `*bold*` 标记：markdown 里 `*x*` 是斜体，盲替会破坏文档自身格式
+- SKILL.md 示例块里转出的 YAML 键行不带 `---` 围栏（已知整容项，不影响语义）
 
 ## Voice Notification
 
@@ -85,9 +85,10 @@ curl -s -X POST http://localhost:31337/notify \
 
 ```
 User: /ljg-push
-→ 检测 ~/.claude/skills/ljg-* 中跟 repo 有差异的 skills
+→ 检测 ~/.agents/skills/ljg-* 中跟 repo 有差异的 skills
 → master: rsync + bump version + commit + push
 → md: rsync + mdize + bump version + commit + push
+→ 切回 master
 → 报告：哪些 skills 推了，新版本号，剩余手工差异
 ```
 
@@ -106,7 +107,7 @@ User: /ljg-push --dry-run
 - *脚本前提是 git credentials 已配好*（ssh key 或 PAT）—— ljg-push 不处理认证，认证失败时直接报错
 - *master 必须先推*——md 分支的 markdown 化基于 master 的 org 版本做转换。反过来推会破坏顺序
 - *untracked 杂物（如 `assets/measure.js`）会被 rsync 同步到 repo*——如果不想推，先在本地删掉，或加进 `.gitignore`
-- *自动 markdown 化只动字符串*——`*bold*` 和 org 头不动。md 分支的复杂差异（如 ljg-paper 的 `template.md` → `template.md`）需要继刚手工维护
+- *org 文件本体已自动转换（2026-06-12 起）*——template.md 等会被转成 .md 并删除原件，每次推送重新生成（rsync --delete 冲掉也无妨，幂等）。遗留手工项只剩正文里的 `*bold*` 标记。新增带复杂构件的 org reference 文件后，先 `--dry-run` 或沙盒跑一遍 mdize 看转换效果
 - *脚本会自动 bump patch version 在 plugin.json + marketplace.json*——如果你想 bump minor / major，先手动改完再跑脚本，脚本只追加 patch
 - *如果 md 分支的远端比本地新（继刚另一台机器推过）*，脚本会 `pull --rebase` 失败时尝试一次 `reset --hard origin/md` 重新应用——这会丢弃本地未推的 md 分支 commit。脚本前会提示
-- *搬迁记录*：repo 历史曾在 `~/.claude.backup-20260502/ljg-skills-repo/`（路径名带 backup 是历史遗留），2026-05-02 搬到 `~/code/ljg-skills/`
+- *当前路径*：skill 源固定在 `~/.agents/skills/`，工作 repo 固定在 `~/code/ljg-skills/`；不要从历史备份目录读取或推送

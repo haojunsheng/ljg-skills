@@ -15,7 +15,7 @@ version: "6.3.0"
 
 ### Markdown 语法
 
-- 加粗用 `**bold**`
+- 加粗用 `**bold**`（双星号）
 - 标题层级从 `#` 开始，不跳级
 
 ### ASCII Art
@@ -31,13 +31,13 @@ version: "6.3.0"
 
 ### Markdown 文件头
 
-```markdown
+```
 ---
-title: {标题}
-date: {YYYY-MM-DD Day HH:MM}
-tags: write
-id: {YYYYMMDDTHHMMSS}
-author: 李继刚
+title:      {标题}
+date:       [{YYYY-MM-DD Day HH:MM}]
+tags:       [write]
+identifier: {YYYYMMDDTHHMMSS}
+author:     李继刚
 ---
 ```
 

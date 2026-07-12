@@ -217,8 +217,8 @@ version: "1.0.0"
 Markdown 文件结构：
 ```markdown
 ---
-title: "伴读：{文本标题}"
-date: {可读时间}
+title: 伴读：{文本标题}
+date: [{可读时间}]
 tags: [reading]
 identifier: {时间戳}
 source: {URL 或来源}
