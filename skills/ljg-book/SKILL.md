@@ -1,6 +1,6 @@
 ---
 name: ljg-book
-description: "Book reader that reconstructs a book as x -> f -> f(x): the problem it addresses, the author's central answer, and how that answer changes judgment or action. USE WHEN the user gives a book title, PDF, excerpt, or asks 拆书, 分析这本书, 这本书在讲什么, 压缩一本书, or book. Defaults to a saved org note. NOT FOR chapter summaries, framework audits, papers, single-idea deep dives, or field ranking."
+description: "Book reader that reconstructs a book as x -> f -> f(x): the problem it addresses, the author's central answer, and how that answer changes judgment or action. USE WHEN the user gives a book title, PDF, excerpt, or asks 拆书, 分析这本书, 这本书在讲什么, 压缩一本书, or book. Defaults to a saved md note. NOT FOR chapter summaries, framework audits, papers, single-idea deep dives, or field ranking."
 user_invocable: true
 ---
 
@@ -18,22 +18,22 @@ user_invocable: true
 
 | 输入 | 必读 | 输出 |
 |---|---|---|
-| 书名 | 查到可靠材料后读 `ReadingGuide.md` | 保存 org 笔记 |
-| PDF、正文、样章、旧笔记 | 先读材料，再读 `ReadingGuide.md` | 保存 org 笔记 |
+| 书名 | 查到可靠材料后读 `ReadingGuide.md` | 保存 md 笔记 |
+| PDF、正文、样章、旧笔记 | 先读材料，再读 `ReadingGuide.md` | 保存 md 笔记 |
 | 用户明确只要口头解释 | `ReadingGuide.md` | 不写文件，按同一路径讲 |
 
-写 org 文件时再读 `references/template.md`。默认保存到 `~/Documents/notes/`。
+写 markdown 文件时再读 `references/template.md`。默认保存到 `~/Documents/notes/`。
 
-文件名沿用 Denote：`{YYYYMMDDTHHMMSS}--拆书-{书名}__book.org`；时间戳用 `date +%Y%m%dT%H%M%S` 生成。
+文件名沿用 Denote：`{YYYYMMDDTHHMMSS}--拆书-{书名}__book.md`；时间戳用 `date +%Y%m%dT%H%M%S` 生成。
 
 ## Completion Target
 
 开头先给三行极简结论：
 
-```org
-- *x*：{作者在讨论什么问题}
-- *f*：{作者用什么核心回答处理 x}
-- *f(x)*：{接受 f 后，面对 x 应如何回应}
+```markdown
+- **x**：{作者在讨论什么问题}
+- **f**：{作者用什么核心回答处理 x}
+- **f(x)**：{接受 f 后，面对 x 应如何回应}
 ```
 
 三行必须能连读：因为存在 x，作者提出 f；把 f 用在 x 上，得到 f(x)。如果三行只是三个相关观点，说明逻辑链还没接通。
@@ -45,14 +45,13 @@ user_invocable: true
 当 f 包含明显的步骤、因果、循环、层级或对立关系，并且图比一段话更清楚时，画一张 ASCII 图。
 
 - 图必须服务 `x → f → f(x)`，不能只是装饰。
-- 放进 org 的 `#+begin_example` / `#+end_example` 块。
+- 放进 markdown 的 ` ``` ` 代码块。
 - 宽度不超过 80 字符。
 - 一张足够；没有合适关系就不画。
 
 最小形态：
 
-```org
-#+begin_example
+```markdown
 x：原来的问题
         │
         ▼
@@ -60,7 +59,6 @@ f：作者的概念 / 框架 / 方法
         │ 应用
         ▼
 f(x)：新的理解 / 判断 / 行动
-#+end_example
 ```
 
 ## Gotchas
@@ -87,10 +85,10 @@ f(x)：新的理解 / 判断 / 行动
 
 顶层章节固定为：
 
-1. `* x：作者在讨论什么问题`
-2. `* f：作者怎样回答`
-3. `* f(x)：怎样回应这个世界`
-4. `* 资料校准`
+1. `# x：作者在讨论什么问题`
+2. `# f：作者怎样回答`
+3. `# f(x)：怎样回应这个世界`
+4. `# 资料校准`
 
 ## Examples
 
