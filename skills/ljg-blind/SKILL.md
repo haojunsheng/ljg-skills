@@ -32,7 +32,7 @@ user_invocable: true
 
 - **杠杆**——补上它，下一步打开的可能性最多。
 - **真盲**——是他自己看不见的，不是知道了在拖的。
-- **对位 mission**——贴 M0（找新取景框）/ M1（求本质）。盲区若正好挡在他的主线上，优先。读 `~/.claude/PAI/USER/TELOS/MISSION.md` 确认主线。
+- **对位 mission**——贴 M0（找新取景框）/ M1（求本质）。盲区若正好挡在他的主线上，优先。读 `${LIFEOS_DIR:-$HOME/.codex/LIFEOS}/USER/TELOS/PRINCIPAL_TELOS.md` 确认主线。
 
 ---
 
@@ -47,25 +47,46 @@ target=${1:-$(date -v-1d +%Y-%m-%d)}
 
 ### 第二步 · 捞当天的对话
 
-会话文件在 `~/.claude/projects/-Users-lijigang*/*.jsonl`，每行一条消息（type=user / assistant / system）。只要继刚的真人发言，滤掉工具回显和子 agent 噪声：
+会话文件在 `$HOME/.codex/sessions/YYYY/MM/DD/*.jsonl`。目录日期按本机时间记录 session 的开始日，行内 `timestamp` 是 UTC；因此同时扫目标日与前一日目录，再按本机日期过滤消息。只读取顶层 task 的 `response_item / message / user / input_text`，排除 `session_meta.payload.source.subagent` 存在的子 agent 会话，以及 harness 包装和本次调用自身：
 
 ```bash
 target=<上一步的日期>
 out=/tmp/ljg-blind-${target}.txt
 : > "$out"
-# 只取顶层会话文件（排除 subagents/workflows），只留真人纯文本
-for f in $(rg -l "\"timestamp\":\"${target}" ~/.claude/projects/-Users-lijigang*/ 2>/dev/null | grep -vE 'subagents/|workflows/'); do
-  jq -r 'select(.type=="user" and ((.timestamp // "") | startswith("'"${target}"'"))) |
-    (.message.content) as $c |
-    (if ($c|type)=="string" then $c
-     elif ($c|type)=="array" then ([$c[] | select(.type=="text") | .text] | join(" "))
-     else "" end) as $t |
-    select($t|length>0) |
-    "[" + (.timestamp|.[11:16]) + "] " + $t' "$f" 2>/dev/null >> "$out"
+previous_dir=$(date -j -v-1d -f '%Y-%m-%d' "$target" '+%Y/%m/%d')
+target_dir=$(date -j -f '%Y-%m-%d' "$target" '+%Y/%m/%d')
+
+for day_dir in "$previous_dir" "$target_dir"; do
+  session_dir="$HOME/.codex/sessions/$day_dir"
+  [ -d "$session_dir" ] || continue
+  find "$session_dir" -type f -name '*.jsonl' -print0
+done | while IFS= read -r -d '' session_file; do
+  # Codex 将子 agent 与顶层 task 放在同一日期目录；从 session_meta 排除它们。
+  if jq -e 'select(.type=="session_meta") |
+      (.payload.source | type == "object" and has("subagent"))' \
+      "$session_file" >/dev/null 2>&1; then
+    continue
+  fi
+
+  jq -r --arg target "$target" '
+    def local_epoch:
+      sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601;
+    select(.type=="response_item"
+      and .payload.type=="message"
+      and .payload.role=="user")
+    | (.timestamp | local_epoch) as $epoch
+    | select(($epoch | strflocaltime("%Y-%m-%d")) == $target)
+    | ([.payload.content[]?
+        | select(.type=="input_text")
+        | .text] | join("\n")) as $text
+    | select($text | length > 0)
+    | select(($text | test("^(<recommended_plugins>|<environment_context>|<task-notification>)")) | not)
+    | select(($text | test("(?i)(ljg-blind|扫盲区)")) | not)
+    | "[" + ($epoch | strflocaltime("%H:%M")) + "] " + $text
+  ' "$session_file" 2>/dev/null >> "$out"
 done
-# 滤掉工具回显 / 系统噪声 / 本次调用请求自身
-grep -vE 'tool_use_id|system-reminder|caveat|Caveat|local-command|command-name|command-message|<task-notification>|ljg-blind|扫盲区' "$out" > "${out}.f" && mv "${out}.f" "$out"
-wc -c "$out"
+
+wc -m "$out"
 ```
 
 材料若 >50KB，按对话分段读，先识别每段在讨论什么主题，再往下看。可辅助看几条相邻的 assistant 回复定上下文。
@@ -104,34 +125,53 @@ curl -s -X POST https://i.weread.qq.com/api/agent/gateway \
 
 3. **估时长**——`wordCount / 280`（中文阅读速度）向上圆到 5 的倍数。无 wordCount 就按目录感觉在 15-45 分钟之间估一个；标题带「上篇/下篇」「卷一」这类宏观词，时长再 ×1.5。
 
-4. **构造链接**：`weread://reading?bId={bookId}&chapterUid={chapterUid}`
+4. **构造网页版链接**——微信读书网页阅读器不接受裸 `bookId` / `chapterUid`，必须先编码。用技能自带工具生成：
 
-**兜底**：搜索全空 / 没对症章节 → 选整本相关书，链接退到 `weread://reading?bId={bookId}`，文里说明为什么没能精准到章。
+```bash
+bun "${HOME}/.agents/skills/ljg-blind/Tools/WeReadWebUrl.ts" "<bookId>" "<chapterUid>"
+```
+
+工具输出形如：
+
+```text
+https://weread.qq.com/web/reader/{encodedBookId}k{encodedChapterUid}
+```
+
+把输出的完整 URL 写进笔记。不要手拼编码值，也不要把裸 ID 直接塞进 `/web/reader/`。
+
+**兜底**：搜索全空 / 没对症章节 → 选整本相关书，只传 bookId 生成网页版书籍入口：
+
+```bash
+bun "${HOME}/.agents/skills/ljg-blind/Tools/WeReadWebUrl.ts" "<bookId>"
+```
+
+文里说明为什么没能精准到章。
 
 ### 第五步 · 写笔记
 
 获取时间戳：`date +%Y%m%dT%H%M%S` 和 `date "+%Y-%m-%d %a %H:%M"`（时间用当前，不是 target）。
 
-写入 `~/doc/notes/{时间戳}--盲区-{主题}__blind.md`。markdown 格式，禁止 markdown 语法。
+写入 `~/doc/notes/{时间戳}--盲区-{主题}__blind.md`。Markdown 格式，禁止 Org 语法。
 
 正文模板：
 
-```org
+```markdown
+---
 title: 盲区扫描 · {一句话点出这个盲区}
 date: [YYYY-MM-DD Weekday HH:MM]
-filetags: :blind:weread:topology:
-
-* 昨天你在想什么
+tags: blind weread topology
+---
+# 昨天你在想什么
 <1-2 段。当天对话的思维地形——哪几件事、绕着哪个核心在转。给证据：哪几句话看出来的。不流水账，抓主线。>
 
-* 照出来的盲区
+# 照出来的盲区
 <挑出的那 1 个盲区。先一句话点破它是哪种（绕开点 / 空转框架 / 单一取景框 / 未检前提 / 相邻空缺）。再 2-3 段说清：它具体长什么样、昨天哪几处暴露了它、为什么你自己看不见。要点到杠杆——补上之后会打开什么。>
 
-* 这一章给你
+# 这一章给你
 - 书：《书名》 — 作者
 - 章节：<章节标题>
 - 时长：约 N 分钟
-- 链接：[[weread://reading?bId=XXX&chapterUid=YYY][在微信读书打开]]
+- 链接：[在微信读书网页版阅读本章](https://weread.qq.com/web/reader/ENCODED_BOOKkENCODED_CHAPTER)
 - 为什么是它：<3-4 句。把盲区和这一章对上——这章具体讲什么、怎么补这个盲区。不要泛泛说"开阔视野"，要说清这一章的哪个东西正对这个盲区的哪个缺口。>
 ```
 
@@ -147,22 +187,28 @@ filetags: :blind:weread:topology:
 - **禁切痕风金属比喻**。不写「这一刀」「再狠一层」「锋利的话」「砸实」「钉死」「硬话」这一整套自夸元修辞。盲区照得准不准，读者看得出，不用作者吆喝力度。
 - **有温度、有毛刺、有判断**。可以有立场，别装中立到虚伪；但标清楚这是判断，不是客观事实。
 
-## org 严格语法（禁混 markdown）
+## Markdown 严格语法（禁混 Org）
 
-- 标题用 `*` / `**` / `***`，不要 `#`
-- 加粗 `*字*`，斜体 `/字/`，等宽 `~code~`
-- 列表用 `-`，不要 `*`（`*` 在 org 是标题）
-- 链接 `[[url][text]]`，不要 `[text](url)`
-- 分隔线 `-----`，不要 `---`；不要 markdown 的 `>` 引用
+- 标题用 `#` / `##` / `###`，不要用星号充当标题
+- 加粗 `**字**`，斜体 `*字*`，等宽 `code`
+- 列表用 `-`；标题使用 `#`
+- 链接使用 `[text](url)`
+- 分隔线使用 `---`；引用使用 `>`
 
 ## 自检（写完前过一遍）
 
 - 盲区有具体证据吗？每一处都能指到昨天哪几句话？没有就退回第三步。
 - 只选了 1 个盲区、说透了吗？还是贪多点了三四个？
-- 章节链接里 bookId 和 chapterUid 都不为空、格式对？
+- 章节链接以 `https://weread.qq.com/web/reader/` 开头，并由工具用非空 bookId、chapterUid 生成？
+- 全文没有残留只能唤起移动 App 的专用协议链接？
 - 翻译腔查了吗？名词化、「是…的」句、可省的连词，扫一遍。
 - 切痕风金属比喻查了吗？「这一刀」「钉死」「砸实」一个不留。
 - 三段都有内容、不空段？
+
+## Gotchas
+
+- **网页版 reader 路径使用编码 ID。** `https://weread.qq.com/web/reader/573976?chapterUid=13` 会返回 404；必须用 `Tools/WeReadWebUrl.ts` 分别编码 bookId 与 chapterUid，再用 `k` 连接。
+- **章节定位不放在 query 参数。** 正确形态是 `/web/reader/{encodedBookId}k{encodedChapterUid}`；省掉章节编码只会打开整本书入口。
 
 ## 和「早信」的分工
 

@@ -202,31 +202,22 @@ Markdown 文件结构：
 ---
 title: 关系分析：{关系描述}
 date: [{日期}]
-tags: [relationship]
+tags: relationship
 identifier: {timestamp}
 ---
-
 # 背景
 {关系基本信息}
 
 # 五层结构诊断
-
 ## 交换结构
-
 ## 权力结构
-
 ## 边界结构
-
 ## 阶段结构
-
 ## 叙事结构
 
 # 模式层发现
-
 ## 重复模式
-
 ## 移情线索
-
 ## 阻抗标记
 
 # 关系结构图
